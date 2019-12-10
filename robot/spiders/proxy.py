@@ -22,7 +22,8 @@ class ProxySpider(scrapy.Spider):
                     port = tr.xpath('.//td[2]/text()').extract_first().strip()
                     code = tr.xpath('.//td[3]/text()').extract_first().strip()
                     print(ip, port, code)
-                    self.cur.execute('insert into proxy values("df", 22, "fd");')
+                    self.cur.execute('insert into proxy values(ip, port, code);')
+                    self.conn.commit()
                 except Exception as e:
                     print('------11111111111---------')
                     print(e)
@@ -35,7 +36,8 @@ class ProxySpider(scrapy.Spider):
                     port = tr.xpath('.//td[2]').xpath('string(.)').extract_first().strip()
                     code = tr.xpath('.//td[6]').xpath('string(.)').extract_first().strip().replace('\t', '').replace('\r', '').replace('\n', '')
                     print(ip, port, code)
-                    self.cur.execute('insert into proxy values("df", 22, "fd");')
+                    self.cur.execute('insert into proxy values(ip, port, code);')
+                    self.conn.commit()
                 except Exception as e:
                     print('---------------')
                     print(e)
