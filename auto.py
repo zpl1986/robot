@@ -88,7 +88,8 @@ while True:
         if proxy:
             ip = proxy[0]
             port = str(proxy[1])
-            options.add_argument('--proxy-server=http://'+ip+':'+port)
+            schema = proxy[2]
+            options.add_argument('--proxy-server='+schema+'://'+ip+':'+port)
             cur.execute('delete from proxy where ip = %r' % ip)
             conn.commit()
         else:
