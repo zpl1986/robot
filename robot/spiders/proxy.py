@@ -20,7 +20,8 @@ class ProxySpider(scrapy.Spider):
         if len(ip.split('.')) == 4:
             for schema in ['socks4', 'http']:
                 resp = requests.get('http://ipinfo.io/ip', proxies={'http': schema+"://" + ip + ":" + port}, timeout=3)
-                if resp == ip:
+                print('ok============'+resp)
+                if resp.strip() == ip:
                     self.cur.execute('insert into proxy values(%r, %r, %r, %r);' % (ip, port, schema, code))
                     self.conn.commit()
 
