@@ -76,6 +76,7 @@ def get_chrome_proxy_extension(username,password,ip,port):
 url = 'https://www.celestyles.com/'
 # url = 'https://www.163.com/'
 
+
 conn = sqlite3.connect('/tmp/proxy.db')
 cur = conn.cursor()
 
@@ -83,16 +84,26 @@ while True:
     try:
         options = webdriver.ChromeOptions()
         options.add_argument('user-agent=' + random.choice(pc_user_agent_list))
-        cur.execute('select * from proxy limit 1')
+        index = open('/data/index').read().strip()  # 当前读哪个库
+        cur.execute('select * from proxy'+index+' limit 1')
         proxy = cur.fetchone()
+        print(proxy)
         if proxy:
             ip = proxy[0]
             port = str(proxy[1])
             schema = proxy[2]
+            print("use proxy========", ip,port,schema)
             options.add_argument('--proxy-server='+schema+'://'+ip+':'+port)
             cur.execute('delete from proxy where ip = %r' % ip)
             conn.commit()
         else:
+            if index == '':
+                open('/data/index', 'w').write('1')
+            elif index == '1':
+                open('/data/index', 'w').write('2')
+            elif index == '2':
+                open('/data/index', 'w').write('')
+
             port = random.randint(10001, 29999)
             options.add_extension(get_chrome_proxy_extension('spef4f3f33', 'Celes2801', 'us.smartproxy.com', str(port)))
         options.add_argument("--no-sandbox")
