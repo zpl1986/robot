@@ -39,6 +39,7 @@ class ProxySpider(scrapy.Spider):
                     self.cur.execute('insert into proxy values(%r, %r, %r);' % (ip, port, code))
                     self.conn.commit()
                 except Exception as e:
+
                     print('---------------')
                     print(e)
 
