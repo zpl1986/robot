@@ -7,7 +7,7 @@ from selenium import webdriver
 import random
 import zipfile
 from selenium.webdriver.common.by import By
-
+import sqlite3
 
 pc_user_agent_list = [
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36',
@@ -76,27 +76,50 @@ def get_chrome_proxy_extension(username,password,ip,port):
 url = 'https://www.celestyles.com/'
 # url = 'https://www.163.com/'
 
+conn = sqlite3.connect('/tmp/proxy.db')
+cur = conn.cursor()
+
 while True:
     try:
         options = webdriver.ChromeOptions()
         options.add_argument('user-agent=' + random.choice(pc_user_agent_list))
-        port = random.randint(10001, 29999)
-        # options.add_extension(get_chrome_proxy_extension('spef4f3f33', 'Celes2801', 'us.smartproxy.com', str(port)))
-        # options.add_argument("--no-sandbox")
+        cur.execute('select * from proxy limit 1')
+        proxy = cur.fetchone()
+        if proxy:
+            ip = proxy[0]
+            port = str(proxy[1])
+            options.add_argument('--proxy-server=http://'+ip+':'+port)
+            cur.execute('delete from proxy where ip = %r' % ip)
+            conn.commit()
+        else:
+            port = random.randint(10001, 29999)
+            options.add_extension(get_chrome_proxy_extension('spef4f3f33', 'Celes2801', 'us.smartproxy.com', str(port)))
+        options.add_argument("--no-sandbox")
         driver = webdriver.Chrome(chrome_options=options)
+        driver.maximize_window()
         driver.implicitly_wait(2)
         driver.get(url)
-        # driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+
+        boxes = driver.find_elements(By.XPATH, '//a[@href]')
+        channels = []
+        details = []
+        for item in boxes:
+            href = item.get_attribute('href')
+            if 'channel' in href:
+                channels.append(item)
+            if 'detail' in href:
+                details.append(item)
+
+        driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+        channels[random.randint(0, len(channels))].click()
+        time.sleep(random.randint(1, 3))
+
         if random.randint(1, 200) == 102:  # 千分之五的点击
+            driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
             driver.find_element_by_class_name('ad-box').click()
             time.sleep(10)
         time.sleep(random.randint(1, 3))
 
-        for i in range(3):
-            boxes = driver.find_elements(By.XPATH, '//a[@href]')
-            item = boxes[random.randint(0, len(boxes) - 1)]
-            item.click()
-            time.sleep(random.randint(1, 3))
     except Exception as e:
         print(e)
     finally:
