@@ -18,8 +18,8 @@ class ProxySpider(scrapy.Spider):
     def insert(self, ip, port, code):
         ip = ''.join([i for i in ip if i in '0123456789.'])
         if len(ip.split('.')) == 4:
-            for schema in ['http', 'https', 'socks4', 'socks5']:
-                resp = requests.get('http://ipinfo.io/ip', proxies={'http': schema+"://" + ip + ":" + port})
+            for schema in ['socks4', 'http']:
+                resp = requests.get('http://ipinfo.io/ip', proxies={'http': schema+"://" + ip + ":" + port}, timeout=3)
                 if resp == ip:
                     self.cur.execute('insert into proxy values(%r, %r, %r, %r);' % (ip, port, schema, code))
                     self.conn.commit()
