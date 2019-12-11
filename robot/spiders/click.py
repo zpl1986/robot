@@ -11,7 +11,7 @@ class ClickSpider(scrapy.Spider):
     name = 'click'
     allowed_domains = ['*']
     start_urls = [
-        'https://www.163.com/',
+        'https://www.celestyles.com/',
         ]
 
     pc_user_agent_list = [
@@ -83,15 +83,18 @@ class ClickSpider(scrapy.Spider):
         options.add_argument('user-agent=' + random.choice(self.pc_user_agent_list))
         port = random.randint(10001, 29999)
         options.add_extension(self.get_chrome_proxy_extension('spef4f3f33', 'Celes2801', 'us.smartproxy.com', str(port)))
+        options.add_argument("--no-sandbox")
         self.driver = webdriver.Chrome(chrome_options=options)
 
     def parse(self, response):
-        self.driver.get(response.url)
-        self.driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
-        if random.randint(200) == 102:  # 千五的点击
-            self.driver.find_element_by_class_name('ad-box').click()
-        time.sleep(5)
-        self.driver.close()
+        while True:
+            self.driver.get(response.url)
+            self.driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+            if random.randint(200) == 102:  # 千分之五的点击
+                self.driver.find_element_by_class_name('ad-box').click()
+                time.sleep(10)
+            time.sleep(15)
+            self.driver.close()
 
 
 
