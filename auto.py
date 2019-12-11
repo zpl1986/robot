@@ -6,7 +6,7 @@ import time
 from selenium import webdriver
 import random
 import zipfile
-
+from selenium.webdriver.common.by import By
 
 
 pc_user_agent_list = [
@@ -74,24 +74,35 @@ def get_chrome_proxy_extension(username,password,ip,port):
     return extension_file_path
 
 url = 'https://www.celestyles.com/'
+# url = 'https://www.163.com/'
 
 while True:
     try:
         options = webdriver.ChromeOptions()
         options.add_argument('user-agent=' + random.choice(pc_user_agent_list))
         port = random.randint(10001, 29999)
-        # options.add_extension(self.get_chrome_proxy_extension('spef4f3f33', 'Celes2801', 'us.smartproxy.com', str(port)))
+        # options.add_extension(get_chrome_proxy_extension('spef4f3f33', 'Celes2801', 'us.smartproxy.com', str(port)))
         # options.add_argument("--no-sandbox")
         driver = webdriver.Chrome(chrome_options=options)
+        driver.implicitly_wait(2)
         driver.get(url)
-        # self.driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+        # driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
         if random.randint(1, 200) == 102:  # 千分之五的点击
             driver.find_element_by_class_name('ad-box').click()
             time.sleep(10)
         time.sleep(random.randint(1, 3))
-        driver.close()
+
+        for i in range(3):
+            boxes = driver.find_elements(By.XPATH, '//a[@href]')
+            item = boxes[random.randint(0, len(boxes) - 1)]
+            item.click()
+            time.sleep(random.randint(1, 3))
     except Exception as e:
         print(e)
+    finally:
+        for handle in driver.window_handles:
+            driver.switch_to.window(handle)
+            driver.close()
 
 
 
