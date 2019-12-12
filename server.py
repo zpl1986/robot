@@ -77,8 +77,8 @@ def get_chrome_proxy_extension(username,password,ip,port):
 url = 'https://www.celestyles.com/'
 # url = 'https://www.163.com/'
 
-# conn = sqlite3.connect('/data/proxy.db')
-# cur = conn.cursor()
+conn = sqlite3.connect('/data/proxy.db')
+cur = conn.cursor()
 
 hour = time.time()%(3600*24)/3600  # 0时区的小时数
 # 美国西五～西十, 西七区晚上时间对应0时区是5～15
@@ -91,26 +91,12 @@ while True:
     try:
         options = webdriver.ChromeOptions()
         options.add_argument('user-agent=' + random.choice(pc_user_agent_list))
-        files = os.listdir('/data/proxy')
-        item = files[random.randint(0, len(files))]
-        proxy = item.split('-')
 
-        # cur.execute('select * from proxy limit 1')
-        # proxy = cur.fetchone()
-        # proxy = ('127.0.0.1', 8888, 'http')
-        print(proxy)
-        if proxy:
-            ip = proxy[0]
-            port = str(proxy[1])
-            schema = proxy[2]
-            print("use proxy========", ip,port,schema)
-            options.add_argument('--proxy-server='+schema+'://'+ip+':'+port)
-            # cur.execute('delete from proxy'+index+' where ip = %r' % ip)
-            # conn.commit()
-            os.remove('/data/proxy/'+item)
-        else:
-            time.sleep(5)
-            continue
+        # port = random.randint(10001, 29999)
+        # options.add_extension(get_chrome_proxy_extension('spef4f3f33', 'Celes@2801', 'us.smartproxy.com', str(port)))
+        port = random.randint(20001, 37960)
+        options.add_extension(get_chrome_proxy_extension('spef4f3f33', 'Celes@2801', 'gate.dc.smartproxy.com/', str(port)))
+
         options.add_argument("--no-sandbox")
         prefs = {"profile.managed_default_content_settings.images": 2}
         options.add_experimental_option("prefs", prefs)

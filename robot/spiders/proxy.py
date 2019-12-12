@@ -11,26 +11,19 @@ class ProxySpider(scrapy.Spider):
         'https://www.proxynova.com/proxy-server-list/country-us/',
     ]
 
-    conn = sqlite3.connect('/tmp/proxy.db')
-    cur = conn.cursor()
-
-    index = open('/data/index').read().strip()  # 当前读哪个库
-    if index == '':
-        index = '2'
-    elif index == '1':
-        index = ''
-    elif index == '2':
-        index = '1'
-
-    cur.execute('CREATE TABLE if not exists proxy'+index+'( ip CHAR(20) PRIMARY KEY NOT NULL, port int not null, '
-                'schema CHAR(100) NOT NULL, code CHAR(100) NOT NULL);')
+    # conn = sqlite3.connect('/data/proxy.db')
+    # cur = conn.cursor()
+    # cur.execute('CREATE TABLE if not exists proxy( ip CHAR(20) PRIMARY KEY NOT NULL, port int not null, '
+    #             'schema CHAR(100) NOT NULL, code CHAR(100) NOT NULL);')
 
     def insert(self, ip, port, schema, code):
         ip = ''.join([i for i in ip if i in '0123456789.'])
         if len(ip.split('.')) == 4:
             requests.get('http://ipinfo.io/ip', proxies={'http': schema+"://" + ip + ":" + port}, timeout=10)
-            self.cur.execute('insert into proxy'+self.index+' values(%r, %r, %r, %r);' % (ip, port, schema, code))
-            self.conn.commit()
+            item = ip+"-"+port+"-"+schema
+            open('/data/proxy/'+item, 'w').write(code)
+            # self.cur.execute('insert into proxy'+self.index+' values(%r, %r, %r, %r);' % (ip, port, schema, code))
+            # self.conn.commit()
 
     def parse(self, response):
         if response.url == 'https://www.socks-proxy.net/':
@@ -56,5 +49,4 @@ class ProxySpider(scrapy.Spider):
                 except Exception as e:
                     print('---------------')
                     print(e)
-
 
