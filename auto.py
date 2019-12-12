@@ -8,6 +8,7 @@ import random
 import zipfile
 from selenium.webdriver.common.by import By
 import sqlite3
+import time
 
 pc_user_agent_list = [
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36',
@@ -76,17 +77,23 @@ def get_chrome_proxy_extension(username,password,ip,port):
 url = 'https://www.celestyles.com/'
 # url = 'https://www.163.com/'
 
-
 conn = sqlite3.connect('/tmp/proxy.db')
 cur = conn.cursor()
 
-while True:
+hour = time.time()%(3600*24)/3600  # 0时区的小时数
+# 美国西五～西十, 西七区晚上时间对应0时区是5～15
+if 5 <= hour <= 15:
+    count = 4
+else:
+    count = 8
+for i in range(count):  # crontab每分钟跑一次，每次跑4回
     try:
         options = webdriver.ChromeOptions()
         options.add_argument('user-agent=' + random.choice(pc_user_agent_list))
         index = open('/data/index').read().strip()  # 当前读哪个库
         cur.execute('select * from proxy'+index+' limit 1')
         proxy = cur.fetchone()
+        # proxy = ('127.0.0.1', 8888, 'http')
         print(proxy)
         if proxy:
             ip = proxy[0]
@@ -104,27 +111,29 @@ while True:
             elif index == '2':
                 open('/data/index', 'w').write('')
 
-            port = random.randint(10001, 29999)
-            options.add_extension(get_chrome_proxy_extension('spef4f3f33', 'Celes2801', 'us.smartproxy.com', str(port)))
+            # port = random.randint(10001, 29999)
+            # options.add_extension(get_chrome_proxy_extension('spef4f3f33', 'Celes2801', 'us.smartproxy.com', str(port)))
+            port = random.randint(20001, 37960)
+            options.add_extension(get_chrome_proxy_extension('spef4f3f33', 'Celes2801', 'gate.dc.smartproxy.com/', str(port)))
         options.add_argument("--no-sandbox")
         driver = webdriver.Chrome(chrome_options=options)
         driver.maximize_window()
         driver.implicitly_wait(2)
         driver.get(url)
 
-        boxes = driver.find_elements(By.XPATH, '//a[@href]')
-        channels = []
-        details = []
-        for item in boxes:
-            href = item.get_attribute('href')
-            if 'channel' in href:
-                channels.append(item)
-            if 'detail' in href:
-                details.append(item)
+        boxes = driver.find_elements(By.XPATH, '//a')
 
-        driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
-        channels[random.randint(0, len(channels))].click()
-        time.sleep(random.randint(1, 3))
+        # driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+        for i in range(random.randint(3, 5)):  # 随机点链接
+            items = driver.find_elements(By.XPATH, '//a')
+            try:
+                item = items[random.randint(0, len(items))]
+                href = item.get_attribute('href') or ''
+                if 'channel' in href or 'detail' in href:
+                    item.click()
+            except:
+                pass
+            time.sleep(random.randint(1, 3))
 
         if random.randint(1, 200) == 102:  # 千分之五的点击
             driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
@@ -134,10 +143,15 @@ while True:
 
     except Exception as e:
         print(e)
+        import traceback
+        traceback.print_exc()
     finally:
-        for handle in driver.window_handles:
-            driver.switch_to.window(handle)
-            driver.close()
+        try:
+            for handle in driver.window_handles:
+                driver.switch_to.window(handle)
+                driver.close()
+        except:
+            pass
 
 
 
