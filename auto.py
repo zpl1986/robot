@@ -86,7 +86,14 @@ if 5 <= hour <= 15:
     count = 4
 else:
     count = 8
-# for i in range(count):  # crontab每分钟跑一次，每次跑4回
+
+if open('/data/index').read().strip() == '1':
+    print('prepare doing')
+else:
+    print('stopping')
+    import sys
+    sys.exit(1)
+
 time.sleep(60)
 while open('/data/index').read().strip() == '1':
     try:
@@ -113,8 +120,8 @@ while open('/data/index').read().strip() == '1':
             time.sleep(10)
             continue
         options.add_argument("--no-sandbox")
-        prefs = {"profile.managed_default_content_settings.images": 2}
-        options.add_experimental_option("prefs", prefs)
+        # prefs = {"profile.managed_default_content_settings.images": 2}
+        # options.add_experimental_option("prefs", prefs)
         driver = webdriver.Chrome(chrome_options=options)
         driver.maximize_window()
         driver.implicitly_wait(2)

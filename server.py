@@ -87,6 +87,13 @@ if 5 <= hour <= 15:
 else:
     count = 8
 
+if open('/data/index').read().strip() == '1':
+    print('prepare doing')
+else:
+    print('stopping')
+    import sys
+    sys.exit(1)
+
 time.sleep(60)
 while open('/data/index').read().strip() == '1':
     try:
