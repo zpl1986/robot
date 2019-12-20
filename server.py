@@ -86,20 +86,37 @@ if 5 <= hour <= 15:
     count = 4
 else:
     count = 8
-# for i in range(count):  # crontab每分钟跑一次，每次跑4回
-while True:
+
+time.sleep(60)
+while open('/data/index').read().strip() == '1':
     try:
         options = webdriver.ChromeOptions()
         options.add_argument('user-agent=' + random.choice(pc_user_agent_list))
 
+        files = os.listdir('/data/port')
+        port = ''
+        if files:
+            port = files[random.randint(0, len(files))]
+
+        # cur.execute('select * from proxy limit 1')
+        # proxy = cur.fetchone()
+        # proxy = ('127.0.0.1', 8888, 'http')
+        print(port)
+        if port:
+            os.remove('/data/port/' + port)
+        else:
+            print('port not found, exit...')
+            import sys
+            sys.exit(1)
+
         # port = random.randint(10001, 29999)
         # options.add_extension(get_chrome_proxy_extension('spef4f3f33', 'Celes@2801', 'us.smartproxy.com', str(port)))
-        port = random.randint(20001, 37960)
-        options.add_extension(get_chrome_proxy_extension('spef4f3f33', 'Celes@2801', 'gate.dc.smartproxy.com/', str(port)))
+        # port = random.randint(20001, 37960)
+        options.add_extension(get_chrome_proxy_extension('spef4f3f33', 'Celes@2801', 'gate.dc.smartproxy.com', str(port)))
 
         options.add_argument("--no-sandbox")
-        prefs = {"profile.managed_default_content_settings.images": 2}
-        options.add_experimental_option("prefs", prefs)
+        # prefs = {"profile.managed_default_content_settings.images": 2}
+        # options.add_experimental_option("prefs", prefs)
         driver = webdriver.Chrome(chrome_options=options)
         driver.maximize_window()
         driver.implicitly_wait(2)
@@ -117,13 +134,13 @@ while True:
                     item.click()
             except:
                 pass
-            time.sleep(random.randint(1, 3))
+            time.sleep(random.randint(10, 20))
 
         if random.randint(1, 200) == 102:  # 千分之五的点击
             driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
             driver.find_element_by_class_name('ad-box').click()
             time.sleep(10)
-        time.sleep(random.randint(1, 3))
+        time.sleep(random.randint(10, 20))
 
     except Exception as e:
         print(e)

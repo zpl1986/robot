@@ -87,7 +87,8 @@ if 5 <= hour <= 15:
 else:
     count = 8
 # for i in range(count):  # crontab每分钟跑一次，每次跑4回
-while True:
+time.sleep(60)
+while open('/data/index').read().strip() == '1':
     try:
         options = webdriver.ChromeOptions()
         options.add_argument('user-agent=' + random.choice(pc_user_agent_list))
@@ -109,7 +110,7 @@ while True:
             # conn.commit()
             os.remove('/data/proxy/'+item)
         else:
-            time.sleep(5)
+            time.sleep(10)
             continue
         options.add_argument("--no-sandbox")
         prefs = {"profile.managed_default_content_settings.images": 2}
